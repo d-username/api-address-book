@@ -8,8 +8,8 @@ const meetings = require("./data/meetings");
 
 app.use(morgan("dev"));
 app.use(cors());
+app.use(express.json());
 
-//requests for all the routes are below.
 app.get("/", (req, res) => {
   res.json("Hello!");
 });
@@ -28,11 +28,41 @@ app.get("/meetings", (req, res) => {
 });
 
 app.get("/contacts/:id/meetings", (req, res) => {
-  //   console.log("params-ID", req.params.id);
   const meetingsPerId = meetings.filter(
     (item) => Number(item.contactId) === Number(req.params.id)
   );
   res.json({ meetings: meetingsPerId });
+});
+
+app.post("/contacts", (req, res) => {
+  const contactData = { ...req.body, id: contacts.length + 1 };
+  contacts.push(contactData);
+  res.json({ contact: contactData });
+});
+
+app.put("/contacts/:id", (req, res) => {
+  const contact = contacts.find((item) => item.id === Number(req.params.id));
+
+  contact.firstName = req.body.firstName;
+  contact.lastName = req.body.lastName;
+  contact.street = req.body.street;
+  contact.city = req.body.city;
+  contact.type = req.body.type;
+  contact.email = req.body.email;
+  contact.linkedin = req.body.linkedin;
+  contact.twitter = req.body.twitter;
+
+  res.json({ contact: contact });
+});
+
+app.delete("/contacts/:id", (req, res) => {
+  for (let i = 0; i < contacts.length; i++) {
+    if (contacts[i].id === req.params.id) {
+      contacts.splice(i, 1);
+      break;
+    }
+  }
+  res.json({ contactId: req.params.id });
 });
 
 //Start up our server
